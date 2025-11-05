@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Máquina de Turing – Comparar Binarios</title>
+<style>
+h2,h3{color:#00d4ff;margin-bottom:8px}
+ul{list-style:disc;margin-left:22px;line-height:1.5}
+table td,th{text-align:center;}
+.titulo-centro {
+  text-align: center;
+  background-color: #0b1020;
+  border: 1px solid #1b2654;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 15px auto;
+  width: 90%;
+}
+
+.titulo-centro h1 {
+  color: #00d4ff;
+  font-size: 22px;
+  margin: 0;
+}
+
+
+
+:root{
+  --bg:#0b1020; --ink:#eaf0ff; --accent:#00d4ff;
+  --panel:#111936; --ok:#27ae60; --bad:#ff5b6e;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;background:#070b15;color:var(--ink);
+  font-family:Segoe UI,Roboto,Arial;
+}
+header{padding:14px;text-align:center;border-bottom:2px solid #19254d;}
+main{
+  padding:14px;display:grid;gap:14px;
+  grid-template-columns:1fr 1.1fr;
+}
+@media(max-width:900px){main{grid-template-columns:1fr;}}
+
+.card{
+  background:var(--panel);
+  border:1px solid #1b2654;
+  border-radius:12px;
+  padding:14px;
+}
+
+.diagram-box{
+  background:#0b122d;border:1px solid #1b2654;
+  border-radius:12px;padding:10px;
+  display:flex;justify-content:center;
+}
+.diagram-box img{width:100%;height:auto;max-height:600px;object-fit:contain;border-radius:8px;}
+
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+input{
+  padding:10px;border-radius:10px;width:250px;
+  background:#0f1738;color:var(--ink);border:1px solid #304089;
+}
+button{
+  padding:8px 12px;border-radius:8px;
+  border:1px solid #3552b0;background:#14235b;
+  cursor:pointer;color:white;font-weight:600;
+}
+button:disabled{opacity:.4;cursor:not-allowed;}
+
+.badge{
+  background:#0f1738;padding:4px 8px;border-radius:8px;
+  border:1px solid #304089;margin-right:4px;
+}
+.tape{
+  display:flex;overflow-x:auto;border-radius:8px;
+  background:#0f1738;border:1px solid #24367a;padding:6px;
+}
+.cell{
+  min-width:34px;height:42px;display:flex;
+  align-items:center;justify-content:center;
+  border-right:1px dashed #24367a;font-weight:700;
+}
+.cell:last-child{border-right:none}
+.sep{color:#ffd166}
+.markL{color:#76ffd1}
+.markR{color:#ffb3d1}
+
+/* RESALTAR CELDA ACTUAL */
+.cell.active{
+  background:rgba(0,210,255,0.25);
+  border:2px solid var(--accent);
+  border-radius:6px;
+  box-shadow:0 0 6px var(--accent);
+}
+
+.log{
+  background:#0e1534;border:1px solid #24367a;
+  height:190px;overflow-y:auto;border-radius:8px;padding:6px;
+  font-family:Consolas;font-size:13px;white-space:nowrap;
+}
+.result.ok{color:var(--ok);font-weight:800}
+.result.no{color:var(--bad);font-weight:800}
+</style>
+</head>
+
+<div class="titulo-centro">
+  <h1>Máquina de Turing – Comparación de Cadenas Binarias</h1>
+</div>
+<!-- === 7-TUPLA Y TABLA DE TRANSICIONES === -->
+<section class="card" style="margin: 20px;">
+  <h2>Definición formal de la Máquina de Turing</h2>
+  <p><b>7-tupla:</b> M = (Q, Σ, Γ, δ, q₀, q₉, B)</p>
+  <ul>
+    <li><b>Q:</b> {q0, q1, q2, q3, q4, q5, q6, q7, q7a, q8, q9}</li>
+    <li><b>Σ:</b> {0, 1, ␣}</li>
+    <li><b>Γ:</b> {0, 1, X, Y, ␣, □}</li>
+  </ul>
+
+  <h3>Tabla de transiciones δ</h3>
+  <table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; background:#0f1738; color:#fff; border:1px solid #2a3b7a;">
+    <tr style="background:#16225a;">
+      <th>Estado</th>
+      <th>Símbolo leído</th>
+      <th>Escribe</th>
+      <th>Movimiento</th>
+      <th>Nuevo estado</th>
+    </tr>
+    <tr><td>q0</td><td>0</td><td>X</td><td>R</td><td>q1</td></tr>
+    <tr><td>q0</td><td>1</td><td>X</td><td>R</td><td>q2</td></tr>
+    <tr><td>q1</td><td>1</td><td>1</td><td>R</td><td>q1</td></tr>
+    <tr><td>q1</td><td>0</td><td>0</td><td>R</td><td>q1</td></tr>
+    <tr><td>q1</td><td>␣</td><td>␣</td><td>R</td><td>q4</td></tr>
+    <tr><td>q2</td><td>0</td><td>0</td><td>R</td><td>q2</td></tr>
+    <tr><td>q2</td><td>1</td><td>1</td><td>R</td><td>q2</td></tr>
+    <tr><td>q2</td><td>␣</td><td>␣</td><td>R</td><td>q6</td></tr>
+    <tr><td>q4</td><td>Y</td><td>Y</td><td>R</td><td>q4</td></tr>
+    <tr><td>q4</td><td>0</td><td>Y</td><td>L</td><td>q5</td></tr>
+    <tr><td>q5</td><td>1</td><td>1</td><td>L</td><td>q0</td></tr>
+    <tr><td>q5</td><td>0</td><td>0</td><td>L</td><td>q0</td></tr>
+    <tr><td>q6</td><td>Y</td><td>Y</td><td>R</td><td>q6</td></tr>
+    <tr><td>q6</td><td>1</td><td>Y</td><td>R</td><td>q7</td></tr>
+    <tr><td>q7</td><td>X</td><td>X</td><td>R</td><td>q3</td></tr>
+    <tr><td>q7</td><td>Y</td><td>Y</td><td>R</td><td>q3</td></tr>
+    <tr><td>q3</td><td>0</td><td>0</td><td>R</td><td>q3</td></tr>
+    <tr><td>q3</td><td>1</td><td>1</td><td>R</td><td>q3</td></tr>
+    <tr><td>q0</td><td>␣</td><td>□</td><td>R</td><td>q8</td></tr>
+    <tr><td>q8</td><td>Y</td><td>Y</td><td>R</td><td>q8</td></tr>
+    <tr><td>q3</td><td>□</td><td>N</td><td>S</td><td><b style="color:#ff6f6f">No Igual</b></td></tr>
+    <tr><td>q8</td><td>□</td><td>=</td><td>s</td><td><b style="color:#27ae60">Igual</b></td></tr>
+  </table>
+</section>
+
+<body>
+<header><h2>Máquina de Turing – Comparación de 2 Cadenas Binarias</h2></header>
+
+<main>
+
+<!--  DIAGRAMA -->
+<section class="card">
+  <b>Diagrama de la Máquina de Turing</b>
+  <div class="diagram-box">
+    <img src="mt_diagrama.png">
+  </div>
+</section>
+
+<!-- 🧠 SIMULADOR -->
+<section class="card">
+  <div class="row">
+    <label>Entrada:</label>
+    <input id="inp" placeholder="Ej: 101 101">
+    <button id="btnInit">Cargar</button>
+    <button id="btnStep" disabled>Paso</button>
+    <button id="btnRun" disabled>Ejecutar</button>
+    <button id="btnReset" disabled>Reiniciar</button>
+    <button id="btnClear">Limpiar</button>
+  </div>
+
+  <div class="row">
+    <div class="badge">Estado: <span id="st">—</span></div>
+    <div class="badge">Cabeza: <span id="hp">—</span></div>
+    <div class="badge">Paso: <span id="sp">0</span></div>
+    <div class="badge">Resultado: <span id="rs">—</span></div>
+  </div>
+
+  <div id="tape" class="tape"></div>
+
+  <br><b>ID:</b>
+  <div id="log" class="log"></div>
+</section>
+
+</main>
+
+<script>
+const BLANK='□', SEP=' ', PAD=10;
+const $=id=>document.getElementById(id);
+let tape=[], head=0, state='q0', steps=0, final=null;
+
+function render(center=false){
+  const tapeEl=$("tape"); tapeEl.innerHTML="";
+  tape.forEach((c,i)=>{
+    const d=document.createElement("div");
+    d.className="cell"+(i===head?" active":"");
+    const t=document.createElement("span");
+    t.textContent = c==SEP?"␣":c;
+    if(c==='X') t.className="markL";
+    if(c==='Y') t.className="markR";
+    if(c===SEP) t.className="sep";
+    d.appendChild(t); tapeEl.appendChild(d);
+  });
+  $("st").textContent=state;
+  $("hp").textContent=head;
+  $("sp").textContent=steps;
+}
+
+function reset(full=false){
+  tape=[];head=0;state='q0';steps=0;final=null;
+  $("rs").textContent="—";$("rs").className="";
+  $("log").innerHTML="";
+  if(full)$("inp").value="";
+  disableBtns();
+  render();
+}
+function disableBtns(){ $("btnStep").disabled=$("btnRun").disabled=$("btnReset").disabled=true; }
+
+function load(){
+  const raw=$("inp").value.trim().replace(/_/g," ").replace(/\s+/g," ");
+  if(!/^[01]+ [01]+$/.test(raw)) return alert("Ingresa 2 binarios separados por espacio");
+  tape=(BLANK.repeat(PAD)+raw+BLANK.repeat(PAD)).split("");
+  head=PAD; state='q0'; steps=0; final=null;
+  $("btnStep").disabled=$("btnRun").disabled=$("btnReset").disabled=false;
+  log(); render(true);
+}
+
+function log(){
+  const e=document.createElement("div");
+  e.textContent=`(${state},${head}) `+tape.join("").replace(/ /g,"␣");
+  $("log").appendChild(e); $("log").scrollTop=$("log").scrollHeight;
+}
+
+function read(){return tape[head]??BLANK;}
+function write(c){tape[head]=c;}
+function move(d){head+=d;if(head<0){tape.unshift(BLANK);head=0;} if(head>=tape.length)tape.push(BLANK);}
+function noBits(){return !tape.includes('0') && !tape.includes('1');}
+
+function step(){
+  if(final!==null) return;
+  const ch=read(); let r=null;
+
+  switch(state){
+    case 'q0':
+      if(ch=='0') r=['X',1,'q1'];
+      else if(ch=='1') r=['X',1,'q2'];
+      else if(ch=='X'||ch=='Y') r=[ch,1,'q0'];
+      else if(ch==SEP) r=[SEP,1,'q7'];
+      else if(ch==BLANK){
+        state = noBits()?'q9':'q8'; return step();
+      } break;
+
+    case 'q1':
+      if(['0','1','X','Y'].includes(ch)) r=[ch,1,'q1'];
+      else if(ch==SEP) r=[SEP,1,'q4'];
+      break;
+
+    case 'q2':
+      if(['0','1','X','Y'].includes(ch)) r=[ch,1,'q2'];
+      else if(ch==SEP) r=[SEP,1,'q5'];
+      break;
+
+    case 'q4':
+      if(ch=='Y') r=['Y',1,'q4'];
+      else if(ch=='0') r=['Y',-1,'q6'];
+      else if(ch=='1'||ch==BLANK){state='q8';return step();}
+      break;
+
+    case 'q5':
+      if(ch=='Y') r=['Y',1,'q5'];
+      else if(ch=='1') r=['Y',-1,'q6'];
+      else if(ch=='0'||ch==BLANK){state='q8';return step();}
+      break;
+
+    case 'q6':
+      if(['0','1','X','Y'].includes(ch)) r=[ch,-1,'q6'];
+      else if(ch==SEP) r=[SEP,-1,'q7a'];
+      break;
+
+    case 'q7a':
+      if(['0','1','X','Y'].includes(ch)) r=[ch,-1,'q7a'];
+      else if(ch==BLANK){
+        if(noBits()){state='q9';return step();}
+        r=[BLANK,1,'q0'];
+      } break;
+
+    case 'q7':
+      if(ch=='Y') r=['Y',1,'q7'];
+      else if(ch=='0'||ch=='1'){state='q8';return step();}
+      else if(ch==BLANK){state='q9';return step();}
+      break;
+
+    case 'q8': finish(false); return;
+    case 'q9': finish(true); return;
+  }
+
+  if(!r){state='q8';return step();}
+  write(r[0]); move(r[1]); state=r[2];
+  steps++; log(); render();
+  if(state=='q8')finish(false); if(state=='q9')finish(true);
+}
+
+function finish(ok){
+  final=ok;
+  $("rs").textContent = ok?"IGUAL":"NO_IGUAL";
+  $("rs").className = "result "+(ok?"ok":"no");
+  disableBtns();
+}
+
+$("btnInit").onclick=load;
+$("btnStep").onclick=step;
+$("btnRun").onclick=async()=>{ while(final===null){step();await new Promise(r=>setTimeout(r,30));} };
+$("btnReset").onclick=()=>reset(true);
+$("btnClear").onclick=()=>reset(false);
+
+render();
+$("inp").value="11 11";
+</script>
+</body>
+</html>
