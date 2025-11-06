@@ -22,6 +22,21 @@ table td,th{text-align:center;}
   font-size: 22px;
   margin: 0;
 }
+.titulo-centro h4 {
+  color: #9fb3ff;
+  font-weight: 400;
+  margin-top: 6px;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+
+.titulo-centro h4 {
+  color: #9fb3ff;
+  font-weight: 400;
+  margin-top: 6px;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
 :root{
   --bg:#0b1020; --ink:#eaf0ff; --accent:#00d4ff;
   --panel:#111936; --ok:#27ae60; --bad:#ff5b6e;
@@ -95,7 +110,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 </head>
 
 <div class="titulo-centro">
-  <h1>Máquina de Turing – Comparación de Cadenas Binarias</h1>
+  <h1>Máquina de Turing  Comparación de Cadenas Binarias</h1>
+  <h4>Escriba en la cinta 2 cadenas números binarios (separadas por un |blanco) yluego las compara, determinando si son iguales o no, en caso de ser iguales muestra al final de ambas cadenas un texto o simbolo que determine el resultado. (Iguales o No Iguales)</h4>
 </div>
 
 <section class="card" style="margin: 20px;">
@@ -141,7 +157,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   </table>
 
   <br>
-  <h3>Función de transición δ:</h3>
+  <h3>Función de transición </h3>
   <pre id="funcionTransicion" style="background:#0e1534; border:1px solid #24367a; padding:10px; border-radius:8px; white-space:pre-wrap;"></pre>
 </section>
 
@@ -149,7 +165,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 <header><h2>Máquina de Turing – Comparación de 2 Cadenas Binarias</h2></header>
 
 <main>
-  <!-- DIAGRAMA -->
+  <!-- IMAGEN del  DIAGRAMA -->
   <section class="card">
     <b>Diagrama de la Máquina de Turing</b>
     <div class="diagram-box">
@@ -157,7 +173,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     </div>
   </section>
 
-  <!-- SIMULADOR -->
+  <!-- Botones del Simulador -->
   <section class="card">
     <div class="row">
       <label>Entrada:</label>
@@ -183,7 +199,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 </main>
 
 <script>
-// === FUNCIÓN DE TRANSICIÓN AUTOMÁTICA ===
+// === FUNCIÓN DE TRANSICIÓN===
 function generarFuncionTransicion() {
   const tabla = document.querySelectorAll("#tablaTransiciones tr");
   let funciones = "";
@@ -225,17 +241,20 @@ function reset(full=false){
   if(full)$("inp").value="";
   disableBtns(); render();
 }
+
 function disableBtns(){$("btnStep").disabled=$("btnRun").disabled=$("btnReset").disabled=true;}
 function load(){
   const raw=$("inp").value.trim().replace(/_/g," ").replace(/\s+/g," ");
   if(!/^[01]+ [01]+$/.test(raw)) return alert("Ingresa 2 binarios separados por espacio");
-  generarFuncionTransicion(); // 🔹 Generar función δ al cargar
+  generarFuncionTransicion(); 
+  // === Genera ID Inicial ===
   rawInput = raw; idInicial = `q0,${raw.replace(/ /g,"_")}`;
   tape=(BLANK.repeat(PAD)+raw+BLANK.repeat(PAD)).split("");
   head=PAD; state='q0'; steps=0; final=null;
   $("btnStep").disabled=$("btnRun").disabled=$("btnReset").disabled=false;
   log(); render(true);
 }
+// === Genera ID durante la ejecucion===
 function log(){
   const e=document.createElement("div");
   e.textContent=`(${state},${head}) `+tape.join("").replace(/ /g,"␣");
@@ -300,6 +319,7 @@ function finish(ok){
   final=ok;
   $("rs").textContent = ok?"IGUAL":"NO_IGUAL";
   $("rs").className = "result "+(ok?"ok":"no");
+  // === Genera ID Final ===
   const e=document.createElement("div");
   e.textContent = `(${state},•) ${rawInput.replace(/ /g,"_")} → ${ok?"=":"N"}`;
   $("log").appendChild(e);
